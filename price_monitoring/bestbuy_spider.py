@@ -1,4 +1,5 @@
 import asyncio
+import re
 import aiohttp  # type: ignore
 from multiprocessing import Pool, cpu_count
 from scrapy.http import HtmlResponse
@@ -27,25 +28,46 @@ class BestbuySpider:
             'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
         }
 
-    async def fetch_url(self, url):
+    def start_end_finder(self, data, start, end):
+        r = re.findall(re.escape(start) + "(.+?)" + re.escape(end), data, re.DOTALL)
+        return r[0] if r else None
+
+    async def crawl_data(self, session, url):
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, headers=self.headers, cookies=self.cookies) as response:
-                    content = await response.text()
-                    print("Status:", response.status)
-                    xpath=HtmlResponse(url='',body=content,encoding='utf-8')
-                    product_name=xpath.xpath('//h1/text()').get('').strip()
-                    pickup=xpath.xpath('//*[contains(text()," Selected")]/../div//button[1]/@aria-label').get('').strip()
-                    shipping=xpath.xpath('//*[contains(text()," Selected")]/../div//button[2]/@aria-label').get('').strip()
-                    
-                    return print({"product name":product_name,"pickup":pickup,"shipping":shipping})
+            async with session.get(url, headers=self.headers, cookies=self.cookies) as response:
+                content = await response.text()
+                print("Status:", response.status)
+                xpath=HtmlResponse(url='',body=content,encoding='utf-8')
+                product_name=xpath.xpath('//h1/text()').get('').strip()
+                description=self.start_end_finder(content, 'plainText', '"}').replace('\\','').lstrip('":"').strip()
+                price=xpath.xpath('//*[@data-testid="customer-price"]/span/text()').get('').replace(',','').replace('$','').strip()
+                print(price)
+                discount=self.start_end_finder(content, 'priceChangeTotalSavingsAmount":', ',"').strip()
+                print('discount:',discount)
+                pickup=xpath.xpath('//*[contains(text()," Selected")]/../div//button[1]/@aria-label').get('').strip()
+                if 'Unavailable' in pickup:availability='No'
+                else:availability='Yes'
+                review_star=xpath.xpath('//h2[contains(text(),"Reviews")]/../div//span[contains(@class,"overall-rating")]/text()[2]').get('').strip()
+                if not review_star:
+                    review_star=xpath.xpath('//span[@class="ugc-c-review-average font-weight-medium order-1"]/text()').get('').strip()
+                review_count=xpath.xpath('//div[@class="review-count"]/text()').get('').strip()
+                if not review_count:
+                    review_count=xpath.xpath('//span[@class="c-reviews order-2"]/text()').get('').split(' ')[0].replace('(','').strip()
+                print(url)
+                print('review_star:',review_star,'---','review_count:',review_count)
+                print('availability:',availability)
+                print('***'*10)
+
+
+
+                # return print(raw_desc)
         except Exception as e:
-            print(f"Error fetching: {e}")
+            print(f"Error fetching {url}: {e}")
             return None
 
     async def crawl_urls(self):
         async with aiohttp.ClientSession() as session:
-            tasks = [self.fetch_url(session, url) for url in self.urls]
+            tasks = [self.crawl_data(session, url) for url in self.urls]
             results = await asyncio.gather(*tasks, return_exceptions=True)
         return results
 
