@@ -1,22 +1,18 @@
 import asyncio
-import aiohttp
+import aiohttp  # type: ignore
 from scrapy.http import HtmlResponse
 
 class BestbuyScraper:
-
     def __init__(self) -> None:
-        self.input_url = input('Enter bestbuy.com Product URL: ')
+        self.input_url = input('Enter bestbuy.com Product URL:')
         self.input_zipcode = input('Enter US Zipcode (If blank then default zipcode 96939):')
-        
         if not self.input_zipcode:
             self.input_zipcode=96939
-
         self.cookies = {
             'intl_splash': 'false',
-            'locDestZip': str(self.input_zipcode),
+            'locDestZip': str(self.input_zipcode), # 96939
             'locStoreId': '852',
         }
-
         self.headers = {
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
             'accept-language': 'en-US,en;q=0.9',
@@ -34,7 +30,6 @@ class BestbuyScraper:
 
     async def spider(self):
         try:
-            # Use aiohttp for async requests
             async with aiohttp.ClientSession() as session:
                 async with session.get(self.input_url, headers=self.headers, cookies=self.cookies) as response:
                     content = await response.text()
@@ -46,12 +41,10 @@ class BestbuyScraper:
                     
                     return print({"product name":product_name,"pickup":pickup,"shipping":shipping})
         except Exception as e:
-            print(f"Error fetching {self.input_url}: {e}")
+            print(f"Error fetching: {e}")
             return None
 
 if __name__ == '__main__':
-    crawl = BestbuyScraper()
-    
-    asyncio.run(crawl.spider())
 
-    # print(data)
+    crawl = BestbuyScraper()
+    asyncio.run(crawl.spider())
