@@ -1,4 +1,5 @@
 import asyncio
+import json
 import re
 import aiohttp  # type: ignore
 from multiprocessing import Pool, cpu_count
@@ -38,29 +39,34 @@ class BestbuySpider:
                 content = await response.text()
                 print("Status:", response.status)
                 xpath=HtmlResponse(url='',body=content,encoding='utf-8')
-                product_name=xpath.xpath('//h1/text()').get('').strip()
-                description=self.start_end_finder(content, 'plainText', '"}').replace('\\','').lstrip('":"').strip()
+                # Crawling xpath adding
                 price=xpath.xpath('//*[@data-testid="customer-price"]/span/text()').get('').replace(',','').replace('$','').strip()
-                print(price)
+                # print(price)
                 discount=self.start_end_finder(content, 'priceChangeTotalSavingsAmount":', ',"').strip()
-                print('discount:',discount)
+                # print('discount:',discount)
                 pickup=xpath.xpath('//*[contains(text()," Selected")]/../div//button[1]/@aria-label').get('').strip()
                 if 'Unavailable' in pickup:availability='No'
                 else:availability='Yes'
-                review_star=xpath.xpath('//h2[contains(text(),"Reviews")]/../div//span[contains(@class,"overall-rating")]/text()[2]').get('').strip()
-                if not review_star:
-                    review_star=xpath.xpath('//span[@class="ugc-c-review-average font-weight-medium order-1"]/text()').get('').strip()
-                review_count=xpath.xpath('//div[@class="review-count"]/text()').get('').strip()
-                if not review_count:
-                    review_count=xpath.xpath('//span[@class="c-reviews order-2"]/text()').get('').split(' ')[0].replace('(','').strip()
-                print(url)
-                print('review_star:',review_star,'---','review_count:',review_count)
-                print('availability:',availability)
+
+                raw_data = xpath.xpath('//*[@id="product-schema"]/text()').get('').strip()
+                json_data=json.loads(raw_data)
+                product_name=json_data['name']
+                # print('product_name:',product_name)
+                description=json_data['description']
+                # print('description:',description)
+                ratingvalue=json_data['aggregateRating']['ratingValue']
+                reviewcount=json_data['aggregateRating']['reviewCount']
+                top_reviews=json_data['reviews']
+
+                reviews_one_data=top_reviews[0]
+
+
+                print('reviews_one_data:',reviews_one_data)
+                # print('ratingvalue:',ratingvalue,'---','review_count:',reviewcount)
+                # print('availability:',availability)
+
                 print('***'*10)
 
-
-
-                # return print(raw_desc)
         except Exception as e:
             print(f"Error fetching {url}: {e}")
             return None
@@ -105,21 +111,21 @@ def main():
     # List of URLs to crawl
     urls = [
         "https://www.bestbuy.com/site/samsung-75-class-du6950-series-crystal-uhd-4k-smart-tizen-tv-2024/6594898.p?skuId=6594898",
-        "https://www.bestbuy.com/site/lg-65-class-g4-series-oled-evo-4k-uhd-smart-webos-tv-2024/6578150.p?skuId=6578150",
-        "https://www.bestbuy.com/site/tcl-55-class-q5-series-4k-uhd-hdr-pro-qled-smart-fire-tv-2024/6593218.p?skuId=6593218",
-        "https://www.bestbuy.com/site/lg-65-class-ut70-series-led-4k-uhd-smart-webos-tv-2024/6593578.p?skuId=6593578",
-        "https://www.bestbuy.com/site/samsung-65-class-s90c-oled-4k-uhd-smart-tizen-tv-2023/6536964.p?skuId=6536964",
-        "https://www.bestbuy.com/site/samsung-50-class-du6900-series-crystal-uhd-4k-smart-tizen-tv-2024/6584869.p?skuId=6584869",
-        "https://www.bestbuy.com/site/hisense-85-class-qd6-series-qled-4k-uhd-smart-google-tv-2024/6594982.p?skuId=6594982",
-        "https://www.bestbuy.com/site/insignia-65-class-f30-series-led-4k-uhd-smart-fire-tv/6492966.p?skuId=6492966",
-        "https://www.bestbuy.com/site/sony-75-class-bravia-xr-x90l-led-4k-uhd-smart-google-tv-2023/6544735.p?skuId=6544735",
-        "https://www.bestbuy.com/site/lg-43-class-ut70-series-led-4k-uhd-smart-webos-tv-2024/6593577.p?skuId=6593577",
-        "https://www.bestbuy.com/site/samsung-55-class-ls03d-the-frame-series-qled-4k-with-anti-reflection-and-slim-fit-wall-mount-included-2024/6576585.p?skuId=6576585",
-        "https://www.bestbuy.com/site/toshiba-43-class-c350-series-led-4k-uhd-smart-fire-tv/6532119.p?skuId=6532119",
-        "https://www.bestbuy.com/site/samsung-85-class-qn85d-series-neo-qled-4k-smart-tizen-tv-2024/6576433.p?skuId=6576433",
-        "https://www.bestbuy.com/site/insignia-42-class-f20-series-led-full-hd-smart-fire-tv/6495088.p?skuId=6495088",
-        "https://www.bestbuy.com/site/samsung-55-class-du6900-series-crystal-uhd-4k-smart-tizen-tv-2024/6593856.p?skuId=6593856",
-        "https://www.bestbuy.com/site/sony-65-class-bravia-8-oled-4k-uhd-smart-google-tv-2024/6578577.p?skuId=6578577",
+        # "https://www.bestbuy.com/site/lg-65-class-g4-series-oled-evo-4k-uhd-smart-webos-tv-2024/6578150.p?skuId=6578150",
+        # "https://www.bestbuy.com/site/tcl-55-class-q5-series-4k-uhd-hdr-pro-qled-smart-fire-tv-2024/6593218.p?skuId=6593218",
+        # "https://www.bestbuy.com/site/lg-65-class-ut70-series-led-4k-uhd-smart-webos-tv-2024/6593578.p?skuId=6593578",
+        # "https://www.bestbuy.com/site/samsung-65-class-s90c-oled-4k-uhd-smart-tizen-tv-2023/6536964.p?skuId=6536964",
+        # "https://www.bestbuy.com/site/samsung-50-class-du6900-series-crystal-uhd-4k-smart-tizen-tv-2024/6584869.p?skuId=6584869",
+        # "https://www.bestbuy.com/site/hisense-85-class-qd6-series-qled-4k-uhd-smart-google-tv-2024/6594982.p?skuId=6594982",
+        # "https://www.bestbuy.com/site/insignia-65-class-f30-series-led-4k-uhd-smart-fire-tv/6492966.p?skuId=6492966",
+        # "https://www.bestbuy.com/site/sony-75-class-bravia-xr-x90l-led-4k-uhd-smart-google-tv-2023/6544735.p?skuId=6544735",
+        # "https://www.bestbuy.com/site/lg-43-class-ut70-series-led-4k-uhd-smart-webos-tv-2024/6593577.p?skuId=6593577",
+        # "https://www.bestbuy.com/site/samsung-55-class-ls03d-the-frame-series-qled-4k-with-anti-reflection-and-slim-fit-wall-mount-included-2024/6576585.p?skuId=6576585",
+        # "https://www.bestbuy.com/site/toshiba-43-class-c350-series-led-4k-uhd-smart-fire-tv/6532119.p?skuId=6532119",
+        # "https://www.bestbuy.com/site/samsung-85-class-qn85d-series-neo-qled-4k-smart-tizen-tv-2024/6576433.p?skuId=6576433",
+        # "https://www.bestbuy.com/site/insignia-42-class-f20-series-led-full-hd-smart-fire-tv/6495088.p?skuId=6495088",
+        # "https://www.bestbuy.com/site/samsung-55-class-du6900-series-crystal-uhd-4k-smart-tizen-tv-2024/6593856.p?skuId=6593856",
+        # "https://www.bestbuy.com/site/sony-65-class-bravia-8-oled-4k-uhd-smart-google-tv-2024/6578577.p?skuId=6578577",
     ]
 
     # start crawling process
