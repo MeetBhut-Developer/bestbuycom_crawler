@@ -53,18 +53,38 @@ class BestbuySpider:
                 print("Status:", response.status)
                 print(url)
                 xpath=HtmlResponse(url='',body=content,encoding='utf-8')
+                # Crawling xpath adding
+                # price=xpath.xpath('//*[@data-testid="customer-price"]/span/text()').get('').replace(',','').replace('$','').strip()
+                # # print(price)
+                # discount=self.start_end_finder(content, 'priceChangeTotalSavingsAmount":', ',"').strip()
+                # # print('discount:',discount)
+                # pickup=xpath.xpath('//*[contains(text()," Selected")]/../div//button[1]/@aria-label').get('').strip()
+                # if 'Unavailable' in pickup:availability='No'
+                # else:availability='Yes'
 
                 raw_data = xpath.xpath('//*[@id="product-schema"]/text()').get('').strip()
                 json_data=json.loads(raw_data)
                 product_name=json_data['name']
+                # print('product_name:',product_name)
                 description=json_data['description']
+                # print('description:',description)
+                # ratingvalue=json_data['aggregateRating']['ratingValue']
+                # reviewcount=json_data['aggregateRating']['reviewCount']
+                
+                # top_reviews=json_data['reviews']
+                # dict_review_1={"ratingValue":top_reviews[0]['reviewRating']['ratingValue'],"reviewTitle":top_reviews[0]['name'],"reviewBody":top_reviews[0]['reviewBody'].replace('\n','').strip()}
+                # dict_review_2={"ratingValue":top_reviews[0]['reviewRating']['ratingValue'],"reviewTitle":top_reviews[0]['name'],"reviewBody":top_reviews[0]['reviewBody'].replace('\n','').strip()}
+                # dict_review_3={"ratingValue":top_reviews[0]['reviewRating']['ratingValue'],"reviewTitle":top_reviews[0]['name'],"reviewBody":top_reviews[0]['reviewBody'].replace('\n','').strip()}
+
                 self.db_connect()
                 cursor=self.connection.cursor()
                 cursor.execute(f"INSERT INTO master_products (product_name, description,product_url) VALUES ('{product_name}','{description}','{url}');")
                 print('Data Inserted !')
                 self.connection.commit()
                 self.db_close()
-                print('*'*30)
+
+                print('***'*10)
+
         except Exception as e:
             print(f"Error fetching {url}: {e}")
             return None
