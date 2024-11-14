@@ -38,7 +38,6 @@ class BestbuyScraper:
                     product_name=xpath.xpath('//h1/text()').get('').strip()
                     pickup=xpath.xpath('//*[contains(text()," Selected")]/../div//button[1]/@aria-label').get('').strip()
                     shipping=xpath.xpath('//*[contains(text()," Selected")]/../div//button[2]/@aria-label').get('').strip()
-                    
                     return print({"product name":product_name,"pickup":pickup,"shipping":shipping})
         except Exception as e:
             print(f"Error fetching: {e}")

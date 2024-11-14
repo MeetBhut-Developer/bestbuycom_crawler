@@ -1,13 +1,16 @@
 import asyncio
+import os
 import json
 import re
 import aiohttp  # type: ignore
 from multiprocessing import Pool, cpu_count
 from scrapy.http import HtmlResponse
+import sqlite3
 
 class BestbuySpider:
     def __init__(self, urls):
         self.urls = urls
+        self.connection=None
         self.cookies = {
             'intl_splash': 'false',
             'locDestZip':'96939',
@@ -28,6 +31,19 @@ class BestbuySpider:
             'upgrade-insecure-requests': '1',
             'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
         }
+
+    def db_connect(self):
+        try:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            db_path = os.path.join(script_dir, '..', 'database', 'bestbuy.db')
+            db_path = os.path.abspath(db_path)
+            self.connection=sqlite3.connect(db_path)
+        except ConnectionError as err:
+            print(err)
+            self.connection=None
+
+    def insert_master_data(self,product_name,description):
+        
 
     def start_end_finder(self, data, start, end):
         r = re.findall(re.escape(start) + "(.+?)" + re.escape(end), data, re.DOTALL)
