@@ -4,6 +4,7 @@ This project includes web scraping tools for capturing product data from the Bes
 
 ## Project Structure
 
+```
 bestbuy-price-monitoring/
 │
 ├── database/
@@ -21,6 +22,7 @@ bestbuy-price-monitoring/
 ├── LICENSE                      # License information for the project
 ├── README.md                    # Documentation for the project
 └── requirements.txt             # Python dependencies for the project
+```
 
 ## Database Structure
 The database consists of a master product list and a daily table to track updates in product details. For reference and ease of replication, SQLite is used in this example, but the project is compatible with other databases like MySQL or PostgreSQL.
