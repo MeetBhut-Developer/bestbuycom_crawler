@@ -5,16 +5,15 @@ This project includes web scraping tools for capturing product data from the Bes
 ## Project Structure
 
 database
-    └── bestbuy.db           # SQLite database for storing product data
+ - [bestbuy.db] # SQLite database for storing product data
 
 price_monitoring
-    ├── bestbuy_spider.py    # Initial full crawl for product data storage in the database
-    ├── extract_timebase_data.py # Extract data on start_time & end_time (Using 'YYYY-MM-DD HH:MM:SS' format)
-    └── hourly_crawl_spider.py # Scheduled hourly crawl for monitoring price, stock, and reviews
-
+ - [bestbuy_spider.py] # Initial full crawl for product data storage in the database
+ - [extract_timebase_data.py] # Extract data on start_time & end_time (Using 'YYYY-MM-DD HH:MM:SS' format)
+ - [hourly_crawl_spider.py] # Scheduled hourly crawl for monitoring price, stock, and reviews
 
 scraper
-    └── bestbuy_scraper.py   # Scraper to retrieve shipping & pickup information using product URLs and zip codes
+ - [bestbuy_scraper.py] # Scraper to retrieve shipping & pickup information using product URLs and zip codes
 
 ## Database Structure
 The database consists of a master product list and a daily table to track updates in product details. For reference and ease of replication, SQLite is used in this example, but the project is compatible with other databases like MySQL or PostgreSQL.
