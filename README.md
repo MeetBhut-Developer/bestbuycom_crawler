@@ -5,7 +5,7 @@ This project includes web scraping tools for capturing product data from the Bes
 ## Project Structure
 
 ```
-bestbuy-price-monitoring/
+bestbuycom_crawler/
 │
 ├── database/
 │   └── bestbuy.db               # SQLite database for storing product data
