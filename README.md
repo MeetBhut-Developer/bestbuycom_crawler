@@ -16,7 +16,7 @@ price_monitoring
 scraper
    └── bestbuy_scraper.py   # Scraper to retrieve shipping & pickup information using product URLs and zip codes
 
-# Database Structure
+## Database Structure
 The database consists of a master product list and a daily table to track updates in product details. For reference and ease of replication, SQLite is used in this example, but the project is compatible with other databases like MySQL or PostgreSQL.
 
 CREATE TABLE IF NOT EXISTS master_products (
@@ -46,7 +46,7 @@ CREATE INDEX IF NOT EXISTS idx_timestamp ON products_2024_11_14 (timestamp);
 CREATE INDEX IF NOT EXISTS idx_price ON products_2024_11_14 (price);
 CREATE INDEX IF NOT EXISTS idx_review_count ON products_2024_11_14 (review_count);
 
-# Hourly Monitoring with Cron Job
+## Hourly Monitoring with Cron Job
 The hourly crawler checks for updates in price, stock, and reviews and saves these in daily tables. Set up a cron job to automate this process:
 0 * * * * cd /path/to/price_monitoring && python3 hourly_crawl_spider.py
 
