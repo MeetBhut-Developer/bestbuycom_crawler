@@ -2,7 +2,7 @@ import asyncio
 import os
 import json
 import re
-import aiohttp  # type: ignore
+import aiohttp
 from multiprocessing import Pool, cpu_count
 from scrapy.http import HtmlResponse
 import sqlite3
@@ -84,7 +84,6 @@ class BestbuySpider:
 
 
 class URLManager:
-    """Get urls and manage crawling using CPU cores"""
     def __init__(self, urls):
         self.urls = urls
         self.num_cores = cpu_count()
@@ -110,7 +109,7 @@ class URLManager:
 
 
 def main():
-    # List of URLs to crawl
+    # Crawling URLs list
     urls = [
         "https://www.bestbuy.com/site/samsung-75-class-du6950-series-crystal-uhd-4k-smart-tizen-tv-2024/6594898.p?skuId=6594898",
         "https://www.bestbuy.com/site/lg-65-class-g4-series-oled-evo-4k-uhd-smart-webos-tv-2024/6578150.p?skuId=6578150",
@@ -130,7 +129,6 @@ def main():
         "https://www.bestbuy.com/site/sony-65-class-bravia-8-oled-4k-uhd-smart-google-tv-2024/6578577.p?skuId=6578577",
     ]
 
-    # start crawling process
     url_manager = URLManager(urls)
     all_results = url_manager.run_crawlers()
     return all_results
