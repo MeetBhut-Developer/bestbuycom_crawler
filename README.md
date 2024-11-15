@@ -18,22 +18,21 @@ bestbuy-price-monitoring/
 ├── scraper/
 │   └── bestbuy_scraper.py       # Scraper to retrieve shipping & pickup info using product URLs and zip codes
 │
-├── .gitignore                   # Files and directories to be ignored by Git
-├── LICENSE                      # License information for the project
-├── README.md                    # Documentation for the project
-└── requirements.txt             # Python dependencies for the project
+└── README.md                    # Documentation for the project
 ```
 
 ## Database Structure
 The database consists of a master product list and a daily table to track updates in product details. For reference and ease of replication, SQLite is used in this example, but the project is compatible with other databases like MySQL or PostgreSQL.
 
+```
 CREATE TABLE IF NOT EXISTS master_products (
     product_id INTEGER PRIMARY KEY AUTOINCREMENT,
     product_name VARCHAR(255) NOT NULL,
     description TEXT,
     UNIQUE(product_name)
 );
-
+```
+```
 CREATE TABLE IF NOT EXISTS products_2024_11_14 (
     entry_id INTEGER PRIMARY KEY AUTOINCREMENT,
     product_id INTEGER,
@@ -47,13 +46,17 @@ CREATE TABLE IF NOT EXISTS products_2024_11_14 (
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES master_products(product_id)
 );
-
--- Indexes for performance optimization
+```
+#### Indexes for performance optimization
+```
 CREATE INDEX IF NOT EXISTS idx_product_id ON products_2024_11_14 (product_id);
 CREATE INDEX IF NOT EXISTS idx_timestamp ON products_2024_11_14 (timestamp);
 CREATE INDEX IF NOT EXISTS idx_price ON products_2024_11_14 (price);
 CREATE INDEX IF NOT EXISTS idx_review_count ON products_2024_11_14 (review_count);
+```
 
 ## Hourly Monitoring with Cron Job
 The hourly crawler checks for updates in price, stock, and reviews and saves these in daily tables. Set up a cron job to automate this process:
+```
 0 * * * * cd /path/to/price_monitoring && python3 hourly_crawl_spider.py
+```
